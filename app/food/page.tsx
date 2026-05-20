@@ -1,217 +1,187 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
 import {
-  Clock,
-  ExternalLink,
   Flame,
+  Clock3,
   MapPin,
-  Phone,
-  Search,
-  Sparkles,
-  Utensils,
-} from 'lucide-react';
+  Star,
+  ChevronRight,
+} from "lucide-react";
 
-import BottomNav from '../components/bottom-nav';
-import { loadDB, type FoodItem } from '@/lib/data-store';
+import BottomNav from "../components/bottom-nav";
+
+const foodSpots = [
+  {
+    id: 1,
+    name: "Midnight Burger",
+    city: "Köln",
+    type: "Burger",
+    rating: "4.9",
+    open: true,
+  },
+  {
+    id: 2,
+    name: "Pizza Central",
+    city: "Düren",
+    type: "Pizza",
+    rating: "4.7",
+    open: true,
+  },
+  {
+    id: 3,
+    name: "Kebab Factory",
+    city: "Saarbrücken",
+    type: "Döner",
+    rating: "4.8",
+    open: true,
+  },
+];
 
 export default function FoodPage() {
-  const [food, setFood] = useState<FoodItem[]>([]);
-  const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    const db = loadDB();
-    setFood(db.food || []);
-  }, []);
-
-  const filteredFood = useMemo(() => {
-    return food.filter((item) => {
-      const haystack = `${item.name} ${item.city} ${item.address} ${item.cuisine} ${item.note} ${item.tags?.join(' ')}`.toLowerCase();
-      return haystack.includes(search.toLowerCase());
-    });
-  }, [food, search]);
-
   return (
-    <div className="min-h-screen bg-[#050509] px-4 pb-36 pt-8 text-white">
-      <div className="noise" />
+    <main className="min-h-screen bg-black text-white overflow-hidden pb-32">
 
-      <div className="mx-auto max-w-5xl">
-        <section className="mb-6 rounded-[2.2rem] border border-white/10 bg-gradient-to-br from-orange-600/25 via-pink-600/15 to-purple-700/15 p-6 shadow-[0_0_80px_rgba(249,115,22,0.14)]">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <p className="mb-2 text-xs font-black uppercase tracking-[0.25em] text-orange-300">
-                VYBE FOOD
-              </p>
+      <div className="absolute top-[-200px] left-[-100px] w-[300px] h-[300px] bg-orange-500/20 rounded-full blur-[120px]" />
 
-              <h1 className="text-5xl font-black leading-none">
-                Erst essen. Dann eskalieren.
-              </h1>
-            </div>
+      <div className="absolute bottom-[-200px] right-[-100px] w-[300px] h-[300px] bg-red-500/20 rounded-full blur-[120px]" />
 
-            <div className="float-card flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-white/10">
-              <Utensils size={32} />
-            </div>
-          </div>
+      <div className="relative z-10 px-5 pt-14 max-w-md mx-auto">
 
-          <p className="max-w-2xl text-sm leading-relaxed text-white/55">
-            Pre-Party-Dinner, Late-Night-Food und schnelle Spots für Gruppen.
+        <div className="mb-10">
+
+          <p className="text-orange-400 tracking-[0.3em] text-xs mb-3 uppercase">
+            Late Night Food
           </p>
-        </section>
 
-        <div className="vybe-card mb-6 flex items-center gap-3 px-5">
-          <Search size={20} className="text-white/35" />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Burger, Döner, Italienisch, Köln, Düren..."
-            className="h-14 w-full bg-transparent text-sm font-bold text-white outline-none placeholder:text-white/25"
-          />
+          <h1 className="text-5xl font-bold leading-none mb-4">
+            Food
+          </h1>
+
+          <p className="text-white/50 text-lg">
+            Entdecke die besten Foodspots nach der Party.
+          </p>
+
         </div>
 
-        <section className="mb-6 grid gap-3 md:grid-cols-3">
-          <MiniLive label="Heute beliebt" value="Burger" icon={<Flame size={20} />} />
-          <MiniLive label="Ø Preis" value="22 €" icon={<Utensils size={20} />} />
-          <MiniLive label="Late Night" value="4 Spots" icon={<Clock size={20} />} />
-        </section>
+        <div className="rounded-[36px] bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 p-[1px] mb-8">
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {filteredFood.map((item, index) => {
-            const hype = 78 + index * 5;
-            const openLabel = index % 2 === 0 ? 'Jetzt offen' : 'Heute beliebt';
+          <div className="rounded-[36px] bg-black/80 backdrop-blur-2xl p-6">
 
-            return (
-              <div key={item.id} className="vybe-card vybe-border p-5">
-                <div className="mb-5 flex items-start justify-between gap-4">
-                  <div>
-                    <div className="mb-3 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-black">
-                        {item.cuisine}
-                      </span>
+            <div className="flex items-center justify-between mb-6">
 
-                      <span className="flex items-center gap-1 rounded-full bg-green-500/15 px-3 py-1 text-xs font-black text-green-300">
-                        <span className="live-dot" />
-                        {openLabel}
-                      </span>
-                    </div>
+              <div>
 
-                    <h2 className="text-3xl font-black leading-tight">
-                      {item.name}
-                    </h2>
-
-                    <p className="mt-2 flex items-center gap-2 text-sm text-white/45">
-                      <MapPin size={15} className="text-pink-300" />
-                      {item.address || item.city}
-                    </p>
-                  </div>
-
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.4rem] bg-gradient-to-br from-orange-500 to-pink-600">
-                    <Utensils size={30} />
-                  </div>
-                </div>
-
-                <p className="mb-5 text-sm leading-relaxed text-white/50">
-                  {item.note || 'Perfekter Spot für vor oder nach der Party.'}
+                <p className="text-white/50 text-sm mb-2">
+                  Trending Spot
                 </p>
 
-                <div className="mb-5 grid grid-cols-3 gap-3">
-                  <SmallInfo label="p. P." value={`${item.pricePerPerson}€`} />
-                  <SmallInfo label="Hype" value={`${hype}%`} />
-                  <SmallInfo label="City" value={item.city} />
-                </div>
+                <h2 className="text-3xl font-bold">
+                  Midnight Burger
+                </h2>
 
-                <div className="mb-5 h-2 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-orange-400 via-pink-500 to-purple-500"
-                    style={{ width: `${hype}%` }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {item.phone ? (
-                    <a
-                      href={`tel:${item.phone}`}
-                      className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-white/10 text-sm font-black"
-                    >
-                      <Phone size={18} />
-                      Anrufen
-                    </a>
-                  ) : (
-                    <div className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-white/10 text-sm font-black text-white/35">
-                      <Phone size={18} />
-                      Keine Nummer
-                    </div>
-                  )}
-
-                  {item.reservationUrl ? (
-                    <a
-                      href={item.reservationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-600 text-sm font-black shadow-[0_0_35px_rgba(249,115,22,0.25)]"
-                    >
-                      <ExternalLink size={18} />
-                      Reservieren
-                    </a>
-                  ) : (
-                    <div className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-white/10 text-sm font-black text-white/35">
-                      <Sparkles size={18} />
-                      Kein Link
-                    </div>
-                  )}
-                </div>
               </div>
-            );
-          })}
+
+              <div className="w-16 h-16 rounded-3xl bg-orange-500/20 border border-orange-500/20 flex items-center justify-center">
+
+                <Flame className="w-8 h-8 text-orange-300" />
+
+              </div>
+
+            </div>
+
+            <div className="flex items-center gap-5 text-white/60 mb-6">
+
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+
+                <span>
+                  Köln
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Clock3 className="w-4 h-4" />
+
+                <span>
+                  Jetzt geöffnet
+                </span>
+              </div>
+
+            </div>
+
+            <button className="w-full h-16 rounded-3xl bg-white text-black font-semibold text-lg hover:scale-[1.01] transition-all">
+              Spot öffnen
+            </button>
+
+          </div>
+
         </div>
 
-        {filteredFood.length === 0 && (
-          <div className="vybe-card mt-10 p-8 text-center">
-            <Utensils className="mx-auto mb-4 text-orange-300" size={44} />
-            <h2 className="text-3xl font-black">Kein Food Spot gefunden</h2>
-            <p className="mt-3 text-white/45">
-              Lege im Mitarbeiterbereich weitere Restaurants an.
-            </p>
-          </div>
-        )}
+        <div className="space-y-5">
+
+          {foodSpots.map((spot) => (
+            <div
+              key={spot.id}
+              className="rounded-[36px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-6 hover:bg-white/[0.06] transition-all"
+            >
+
+              <div className="flex items-start justify-between mb-5">
+
+                <div>
+
+                  <h3 className="text-3xl font-bold mb-2">
+                    {spot.name}
+                  </h3>
+
+                  <p className="text-white/50 text-lg">
+                    {spot.type}
+                  </p>
+
+                </div>
+
+                <div className="bg-green-500/20 border border-green-500/20 rounded-full px-4 py-2 text-green-300 text-sm">
+                  OPEN
+                </div>
+
+              </div>
+
+              <div className="flex items-center gap-5 text-white/60 mb-6">
+
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+
+                  <span>
+                    {spot.city}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-400" />
+
+                  <span>
+                    {spot.rating}
+                  </span>
+                </div>
+
+              </div>
+
+              <button className="w-full h-16 rounded-3xl bg-white/[0.05] border border-white/10 flex items-center justify-center gap-3 hover:bg-white/[0.08] transition-all">
+
+                Spot öffnen
+
+                <ChevronRight className="w-5 h-5" />
+
+              </button>
+
+            </div>
+          ))}
+
+        </div>
+
       </div>
 
       <BottomNav />
-    </div>
-  );
-}
 
-function MiniLive({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="vybe-card p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-orange-300">
-          {icon}
-        </div>
-        <div className="live-dot" />
-      </div>
-
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
-        {label}
-      </p>
-
-      <p className="mt-2 text-3xl font-black">{value}</p>
-    </div>
-  );
-}
-
-function SmallInfo({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-black/30 p-3">
-      <p className="text-xs text-white/35">{label}</p>
-      <p className="mt-1 truncate text-lg font-black">{value}</p>
-    </div>
+    </main>
   );
 }

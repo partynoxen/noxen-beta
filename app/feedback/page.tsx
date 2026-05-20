@@ -1,201 +1,92 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from "react";
 import {
-  MessageCircle,
   Send,
-  Star,
-  Trash2,
   Bug,
-  Lightbulb,
-  Heart,
-} from 'lucide-react';
+  Sparkles,
+  HeartHandshake,
+ MessageSquare,
+} from "lucide-react";
 
-import BottomNav from '../components/bottom-nav';
-
-type FeedbackItem = {
-  id: string;
-  type: string;
-  rating: number;
-  message: string;
-  createdAt: string;
-};
-
-const STORAGE_KEY = 'vybe_beta_feedback';
+import BottomNav from "../components/bottom-nav";
 
 export default function FeedbackPage() {
-  const [items, setItems] = useState<FeedbackItem[]>([]);
-  const [type, setType] = useState('Idee');
-  const [rating, setRating] = useState(5);
-  const [message, setMessage] = useState('');
+  const [feedback, setFeedback] = useState("");
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    setItems(saved);
-  }, []);
+  const sendFeedback = () => {
+    const subject = encodeURIComponent(
+      "NOXEN Beta Feedback"
+    );
 
-  const saveFeedback = () => {
-    if (!message.trim()) return;
+    const body = encodeURIComponent(feedback);
 
-    const next = [
-      {
-        id: crypto.randomUUID(),
-        type,
-        rating,
-        message: message.trim(),
-        createdAt: new Date().toISOString(),
-      },
-      ...items,
-    ];
-
-    setItems(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setMessage('');
-    setRating(5);
-    setType('Idee');
-  };
-
-  const deleteItem = (id: string) => {
-    const next = items.filter((item) => item.id !== id);
-    setItems(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.location.href = `mailto:partynoxen@gmail.com?subject=${subject}&body=${body}`;
   };
 
   return (
-    <div className="min-h-screen bg-[#050509] px-4 pb-36 pt-8 text-white">
-      <div className="noise" />
+    <main className="min-h-screen bg-black text-white overflow-hidden pb-32">
 
-      <div className="mx-auto max-w-4xl">
-        <section className="mb-6 rounded-[2.2rem] border border-white/10 bg-gradient-to-br from-purple-700/30 via-pink-600/20 to-blue-700/15 p-6 shadow-[0_0_80px_rgba(168,85,247,0.16)]">
-          <div className="mb-5 flex items-center justify-between">
-            <div>
-              <p className="mb-2 text-xs font-black uppercase tracking-[0.25em] text-purple-300">
-                TESTPHASE
-              </p>
+      <div className="absolute top-[-200px] left-[-100px] w-[300px] h-[300px] bg-pink-500/20 rounded-full blur-[120px]" />
 
-              <h1 className="text-5xl font-black leading-none">
-                Feedback geben.
-              </h1>
-            </div>
+      <div className="absolute bottom-[-200px] right-[-100px] w-[300px] h-[300px] bg-blue-500/20 rounded-full blur-[120px]" />
 
-            <div className="float-card flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-white/10">
-              <MessageCircle size={32} />
-            </div>
-          </div>
+      <div className="relative z-10 px-5 pt-14 max-w-md mx-auto">
 
-          <p className="max-w-2xl text-sm leading-relaxed text-white/55">
-            Sammle direkt Meinungen von Freunden: Bugs, Ideen, Wow-Momente und ehrliches Nutzerfeedback.
+        <div className="mb-10">
+
+          <p className="text-pink-400 tracking-[0.3em] text-xs mb-3 uppercase">
+            Beta Feedback
           </p>
-        </section>
 
-        <section className="vybe-card mb-6 p-5">
-          <div className="mb-5 grid gap-3 md:grid-cols-3">
-            {[
-              { label: 'Idee', icon: <Lightbulb size={18} /> },
-              { label: 'Bug', icon: <Bug size={18} /> },
-              { label: 'Wow', icon: <Heart size={18} /> },
-            ].map((item) => (
-              <button
-                key={item.label}
-                onClick={() => setType(item.label)}
-                className={`flex h-14 items-center justify-center gap-2 rounded-2xl text-sm font-black ${
-                  type === item.label
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600'
-                    : 'border border-white/10 bg-white/[0.05] text-white/45'
-                }`}
-              >
-                {item.icon}
-                {item.label}
-              </button>
-            ))}
-          </div>
+          <h1 className="text-5xl font-bold leading-none mb-4">
+            Feedback
+          </h1>
 
-          <div className="mb-5">
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/35">
-              Bewertung
-            </p>
+          <p className="text-white/50 text-lg">
+            Hilf uns dabei, NOXEN besser zu machen.
+          </p>
 
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
-                    rating >= star
-                      ? 'bg-yellow-500 text-black'
-                      : 'border border-white/10 bg-white/[0.05] text-white/30'
-                  }`}
-                >
-                  <Star size={20} className={rating >= star ? 'fill-black' : ''} />
-                </button>
-              ))}
-            </div>
+        </div>
+
+        <div className="rounded-[40px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl p-6 mb-6">
+
+          <div className="flex items-center gap-3 mb-6">
+
+            <MessageSquare className="w-6 h-6 text-pink-400" />
+
+            <h2 className="text-2xl font-bold">
+              Dein Feedback
+            </h2>
+
           </div>
 
           <textarea
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            placeholder="Was ist geil, was fehlt, was nervt?"
-            className="mb-5 min-h-[150px] w-full rounded-[1.7rem] border border-white/10 bg-black/30 p-5 text-sm font-bold text-white outline-none placeholder:text-white/25 focus:border-purple-400"
+            value={feedback}
+            onChange={(e) =>
+              setFeedback(e.target.value)
+            }
+            placeholder="Was gefällt dir? Was wirkt komisch? Welche Features sollen wir als Nächstes bauen?"
+            className="w-full h-48 rounded-3xl bg-black/40 border border-white/10 p-5 text-white placeholder:text-white/30 resize-none outline-none focus:border-pink-500/40 transition-all"
           />
 
           <button
-            onClick={saveFeedback}
-            className="vybe-button flex h-16 w-full items-center justify-center gap-3 rounded-[1.6rem] text-sm font-black"
+            onClick={sendFeedback}
+            className="mt-6 w-full h-16 rounded-3xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 font-semibold text-lg flex items-center justify-center gap-3 hover:scale-[1.01] transition-all"
           >
-            <Send size={20} />
-            Feedback speichern
+
+            <Send className="w-5 h-5" />
+
+            Feedback senden
+
           </button>
-        </section>
 
-        <section className="space-y-3">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="vybe-card flex items-start gap-4 p-5"
-            >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600">
-                {item.type === 'Bug' ? <Bug size={22} /> : item.type === 'Wow' ? <Heart size={22} /> : <Lightbulb size={22} />}
-              </div>
+        </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white/60">
-                    {item.type}
-                  </span>
-
-                  <span className="text-xs font-bold text-yellow-300">
-                    {'★'.repeat(item.rating)}
-                  </span>
-                </div>
-
-                <p className="text-sm leading-relaxed text-white/65">
-                  {item.message}
-                </p>
-              </div>
-
-              <button
-                onClick={() => deleteItem(item.id)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-500/15 text-red-300"
-              >
-                <Trash2 size={17} />
-              </button>
-            </div>
-          ))}
-
-          {items.length === 0 && (
-            <div className="vybe-card p-8 text-center">
-              <MessageCircle className="mx-auto mb-4 text-purple-300" size={42} />
-              <h2 className="text-2xl font-black">Noch kein Feedback</h2>
-              <p className="mt-2 text-sm text-white/45">
-                Perfekt. Jetzt Freunde testen lassen und knallhart Meinungen sammeln.
-              </p>
-            </div>
-          )}
-        </section>
       </div>
 
       <BottomNav />
-    </div>
+
+    </main>
   );
 }

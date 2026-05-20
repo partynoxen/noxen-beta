@@ -10,7 +10,6 @@ import LiveIsland from '../components/live-island';
 import FloatingStatus from '../components/floating-status';
 import LiveCrowd from '../components/live-crowd';
 import TrendingEvents from '../components/trending-events';
-import NightFeed from '../components/night-feed';
 
 export default function HomeClient() {
   return (
@@ -102,10 +101,6 @@ export default function HomeClient() {
 
         <div className="mb-10">
           <TrendingEvents />
-        </div>
-
-        <div className="mb-10">
-          <NightFeed />
         </div>
 
       </div>

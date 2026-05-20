@@ -1,32 +1,30 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Heart,
   Bookmark,
-  Share2,
-  Ticket,
-  Navigation,
-  MapPin,
   Calendar,
+  Car,
+  ChevronRight,
   Clock,
+  Flame,
+  Heart,
+  MapPin,
   Music,
+  Navigation,
+  Share2,
+  Sparkles,
+  Star,
+  Ticket,
   Users,
   UtensilsCrossed,
-  Car,
-  Sparkles,
-} from 'lucide-react';
+} from "lucide-react";
 
-import BottomNav from '../../components/bottom-nav';
-import HeatScore from '../../components/heat-score';
-import GenreBadge from '../../components/genre-badge';
-import { displayCity } from '@/lib/constants';
-import type { EventData } from '../../components/event-card-mini';
-import { createEveningPlan, savePlan } from '@/lib/plan-utils';
+import BottomNav from "@/app/components/bottom-nav";
 
 function safeParseArray(value: string | null): string[] {
   try {
@@ -37,393 +35,397 @@ function safeParseArray(value: string | null): string[] {
   }
 }
 
-export default function EventDetailClient({
-  eventId,
-}: {
-  eventId: string;
-}) {
+export default function EventDetailClient({ event }: { event: any }) {
   const router = useRouter();
 
-  const [event, setEvent] = useState<EventData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const res = await fetch(`/api/events/${eventId}`);
+  const imageSrc = event?.mediaUrl || event?.image || "/events/techno-warehouse.jpg";
 
-        if (!res.ok) {
-          setEvent(null);
-          return;
-        }
+  const price = Number(event?.price ?? 0);
 
-        const data = await res.json();
-        setEvent(data ?? null);
-      } catch (error) {
-        console.error('Event laden fehlgeschlagen:', error);
-        setEvent(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const dateStr = event?.date
+    ? new Date(event.date).toLocaleDateString("de-DE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "Bald";
 
-    const loadLocalInteractions = () => {
-      try {
-        const savedIds = safeParseArray(
-          localStorage.getItem('vybe_saved_events')
-        );
+  const lineupArr = useMemo(() => {
+    return String(event?.lineup ?? "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }, [event?.lineup]);
 
-        const likedIds = safeParseArray(
-          localStorage.getItem('vybe_liked_events')
-        );
+  const mapsUrl =
+    event?.lat && event?.lng
+      ? `https://www.google.com/maps?q=${event.lat},${event.lng}`
+      : `https://www.google.com/maps/search/${encodeURIComponent(
+          `${event?.location ?? ""} ${event?.city ?? ""}`
+        )}`;
 
-        setIsSaved(savedIds.includes(eventId));
-        setIsLiked(likedIds.includes(eventId));
-      } catch (error) {
-        console.error('LocalStorage Fehler:', error);
-      }
-    };
-
-    if (eventId) {
-      fetchEvent();
-      loadLocalInteractions();
-    } else {
-      setLoading(false);
-    }
-  }, [eventId]);
-
-  const handleSave = () => {
+  function handleSave() {
     try {
-      const savedIds = safeParseArray(
-        localStorage.getItem('vybe_saved_events')
-      );
+      const eventId = String(event?.id ?? "");
+      const savedIds = safeParseArray(localStorage.getItem("vybe_saved_events"));
 
       const nextSaved = savedIds.includes(eventId)
         ? savedIds.filter((id) => id !== eventId)
         : [...savedIds, eventId];
 
-      localStorage.setItem(
-        'vybe_saved_events',
-        JSON.stringify(nextSaved)
-      );
-
+      localStorage.setItem("vybe_saved_events", JSON.stringify(nextSaved));
       setIsSaved(nextSaved.includes(eventId));
-    } catch (error) {
-      console.error('Speichern fehlgeschlagen:', error);
+    } catch {
+      setIsSaved((value) => !value);
     }
-  };
+  }
 
-  const handleLike = () => {
+  function handleLike() {
     try {
-      const likedIds = safeParseArray(
-        localStorage.getItem('vybe_liked_events')
-      );
+      const eventId = String(event?.id ?? "");
+      const likedIds = safeParseArray(localStorage.getItem("vybe_liked_events"));
 
       const nextLiked = likedIds.includes(eventId)
         ? likedIds.filter((id) => id !== eventId)
         : [...likedIds, eventId];
 
-      localStorage.setItem(
-        'vybe_liked_events',
-        JSON.stringify(nextLiked)
-      );
-
+      localStorage.setItem("vybe_liked_events", JSON.stringify(nextLiked));
       setIsLiked(nextLiked.includes(eventId));
-    } catch (error) {
-      console.error('Like fehlgeschlagen:', error);
+    } catch {
+      setIsLiked((value) => !value);
     }
-  };
+  }
 
-  const handleShare = async () => {
+  async function handleShare() {
     try {
-      const currentUrl =
-        typeof window !== 'undefined'
-          ? window.location.href
-          : '';
+      const currentUrl = typeof window !== "undefined" ? window.location.href : "";
 
-      if (typeof navigator !== 'undefined' && navigator.share) {
+      if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share({
-          title: event?.title ?? 'NOXEN Event',
-          text: `Check mal ${
-            event?.title ?? 'dieses Event'
-          } im ${event?.clubName ?? 'Club'} aus!`,
+          title: event?.title ?? "NOXEN Event",
+          text: `Check mal ${event?.title ?? "dieses Event"} im ${
+            event?.clubName ?? "Club"
+          } aus.`,
           url: currentUrl,
         });
       } else if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(currentUrl);
-        alert('Link kopiert!');
+        alert("Link kopiert.");
       }
-    } catch (error) {
-      console.error('Teilen fehlgeschlagen:', error);
+    } catch {
+      return;
     }
-  };
+  }
 
-  const handleCreatePlan = () => {
+  function handleCreatePlan() {
     try {
-      if (!event) return;
+      const plan = {
+        id: `plan-${event?.id ?? Date.now()}`,
+        eventId: event?.id,
+        title: event?.title,
+        date: event?.date,
+        startTime: event?.startTime,
+        createdAt: new Date().toISOString(),
+      };
 
-      const plan = createEveningPlan({
-        id: event.id,
-        title: event.title,
-        date: event.date,
-        startTime: event.startTime,
-      });
-
-      savePlan(plan);
-
-      router.push('/');
-    } catch (error) {
-      console.error('Plan erstellen fehlgeschlagen:', error);
-      alert('Plan konnte nicht erstellt werden.');
+      localStorage.setItem("noxen_last_plan", JSON.stringify(plan));
+      router.push("/plan");
+    } catch {
+      router.push("/plan");
     }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-dvh bg-[#050509] flex items-center justify-center pb-20">
-        <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-        <BottomNav />
-      </div>
-    );
   }
 
   if (!event) {
     return (
-      <div className="min-h-dvh bg-[#050509] flex flex-col items-center justify-center pb-20 px-6 text-center">
-        <p className="text-white/50 mb-4">
-          Event nicht gefunden
-        </p>
+      <main className="app-screen bg-[#050509] text-white">
+        <div className="flex min-h-dvh items-center justify-center px-6 text-center">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-7">
+            <h1 className="text-3xl font-black">Event nicht gefunden</h1>
 
-        <button
-          onClick={() => router.back()}
-          className="px-4 py-2 rounded-xl bg-purple-600 text-white"
-        >
-          Zurück
-        </button>
+            <p className="mt-3 text-sm leading-6 text-white/50">
+              Dieses Event existiert in der Beta gerade nicht oder wurde nicht geladen.
+            </p>
+
+            <button
+              onClick={() => router.push("/events")}
+              className="mt-6 rounded-2xl bg-white px-6 py-4 text-sm font-black text-black"
+            >
+              Zurück zu Events
+            </button>
+          </div>
+        </div>
 
         <BottomNav />
-      </div>
+      </main>
     );
   }
 
-  const price = Number(event.price ?? 0);
-
-  const dateStr = event.date
-    ? new Date(event.date).toLocaleDateString('de-DE', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : '';
-
-  const lineupArr = (event.lineup ?? '')
-    .split(',')
-    .map((item: string) => item.trim())
-    .filter(Boolean);
-
-  const mapsUrl =
-    event.lat && event.lng
-      ? `https://www.google.com/maps?q=${event.lat},${event.lng}`
-      : `https://www.google.com/maps/search/${encodeURIComponent(
-          `${event.location ?? ''} ${event.city ?? ''}`
-        )}`;
-
   return (
-    <div className="min-h-dvh bg-[#050509] pb-24 text-white">
-      <div className="relative h-80">
-        {event.mediaUrl ? (
-          <Image
-            src={event.mediaUrl}
-            alt={event.title ?? 'Event'}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-            unoptimized
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-900 to-pink-900" />
-        )}
+    <main className="app-screen bg-[#050509] text-white">
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(147,51,234,0.25),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(236,72,153,0.18),transparent_28%),#050509]" />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050509] via-black/45 to-black/20" />
+      <section className="relative h-[74dvh] min-h-[560px] overflow-hidden">
+        <Image
+          src={imageSrc}
+          alt={event?.title ?? "Event"}
+          fill
+          className="object-cover"
+          priority
+          unoptimized
+        />
 
-        <button
-          onClick={() => router.back()}
-          className="absolute top-4 left-4 z-10 p-3 rounded-full border border-white/10 bg-black/45 backdrop-blur-xl"
-        >
-          <ArrowLeft size={20} />
-        </button>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050509] via-black/35 to-black/20" />
 
-        <button
-          onClick={handleShare}
-          className="absolute top-4 right-4 z-10 p-3 rounded-full border border-white/10 bg-black/45 backdrop-blur-xl"
-        >
-          <Share2 size={18} />
-        </button>
-      </div>
+        <div className="absolute left-4 right-4 top-[calc(env(safe-area-inset-top)+14px)] z-20 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="tap flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-white backdrop-blur-2xl"
+          >
+            <ArrowLeft size={21} />
+          </button>
 
-      <div className="max-w-lg mx-auto px-4 -mt-16 relative z-10">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleShare}
+              className="tap flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-white backdrop-blur-2xl"
+            >
+              <Share2 size={19} />
+            </button>
+
+            <button
+              onClick={handleSave}
+              className={`tap flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 backdrop-blur-2xl ${
+                isSaved ? "bg-blue-500 text-white" : "bg-black/45 text-white"
+              }`}
+            >
+              <Bookmark size={19} className={isSaved ? "fill-white" : ""} />
+            </button>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-0 right-0 z-10">
+          <div className="app-container">
+            <motion.div
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.38 }}
+            >
+              <div className="mb-4 flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-xs font-black text-white shadow-[0_0_30px_rgba(249,115,22,0.35)]">
+                  <Flame size={14} />
+                  HOT EVENT
+                </div>
+
+                <div className="rounded-full border border-white/10 bg-black/45 px-4 py-2 text-xs font-black text-white backdrop-blur-xl">
+                  {event?.genre ?? "Party"}
+                </div>
+
+                <div className="rounded-full border border-white/10 bg-black/45 px-4 py-2 text-xs font-black text-white backdrop-blur-xl">
+                  {price === 0 ? "GRATIS" : `${price.toFixed(0)}€`}
+                </div>
+              </div>
+
+              <h1 className="text-6xl font-black leading-none tracking-tight text-white drop-shadow-2xl">
+                {event?.title ?? "Event"}
+              </h1>
+
+              <p className="mt-3 text-2xl font-black text-white/70">
+                {event?.clubName ?? "Club"}
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="app-container -mt-2 pb-36">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className="mb-5 grid grid-cols-3 gap-3"
         >
-          <div className="mb-5">
-            <div className="flex items-center gap-2 mb-3">
-              <GenreBadge genre={event.genre ?? ''} />
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl">
+            <Star size={17} className="mb-2 fill-white text-white" />
+            <p className="text-xl font-black">{event?.heatScore ?? 92}</p>
+            <p className="text-xs font-bold text-white/40">Heat</p>
+          </div>
 
-              <span className="rounded-full border border-white/10 bg-black/45 px-3 py-1 text-xs font-bold text-white/70">
-                {price === 0
-                  ? 'GRATIS'
-                  : `${price.toFixed(0)}€`}
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl">
+            <Users size={17} className="mb-2 text-white" />
+            <p className="text-xl font-black">{event?.attendees ?? "240+"}</p>
+            <p className="text-xs font-bold text-white/40">Leute</p>
+          </div>
+
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl">
+            <Music size={17} className="mb-2 text-white" />
+            <p className="text-xl font-black">{event?.genre ?? "Club"}</p>
+            <p className="text-xs font-bold text-white/40">Sound</p>
+          </div>
+        </motion.div>
+
+        <div className="mb-5 grid grid-cols-2 gap-3">
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl">
+            <div className="mb-2 flex items-center gap-2 text-purple-300">
+              <Calendar size={16} />
+              <span className="text-xs font-black uppercase tracking-wider">
+                Datum
               </span>
             </div>
+            <p className="text-sm font-bold leading-6 text-white/80">{dateStr}</p>
+          </div>
 
-            <h1 className="text-4xl font-black leading-tight mb-2">
-              {event.title ?? 'Event'}
-            </h1>
-
-            <p className="text-white/55 text-lg font-semibold">
-              {event.clubName ?? ''}
+          <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl">
+            <div className="mb-2 flex items-center gap-2 text-blue-300">
+              <Clock size={16} />
+              <span className="text-xs font-black uppercase tracking-wider">
+                Start
+              </span>
+            </div>
+            <p className="text-sm font-bold leading-6 text-white/80">
+              {event?.startTime ?? "22:00"} – {event?.endTime ?? "Open End"}
             </p>
           </div>
+
+          <div className="col-span-2 rounded-[1.4rem] border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xl">
+            <div className="mb-2 flex items-center gap-2 text-pink-300">
+              <MapPin size={16} />
+              <span className="text-xs font-black uppercase tracking-wider">
+                Location
+              </span>
+            </div>
+            <p className="text-base font-black text-white">
+              {event?.location ?? "Location"} · {event?.city ?? "Köln"}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleCreatePlan}
+          className="tap mb-5 flex w-full items-center justify-center gap-3 rounded-[1.7rem] bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 px-5 py-5 text-base font-black text-white shadow-[0_0_45px_rgba(236,72,153,0.35)]"
+        >
+          <Sparkles size={21} />
+          Abend automatisch planen
+        </button>
+
+        <div className="mb-5 rounded-[1.7rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl">
+          <h2 className="mb-3 flex items-center gap-2 text-lg font-black">
+            <Music size={18} className="text-purple-300" />
+            Über die Nacht
+          </h2>
+
+          <p className="text-base leading-8 text-white/58">
+            {event?.description ??
+              "Weitere Infos zu diesem Event folgen bald in der Beta."}
+          </p>
+        </div>
+
+        {lineupArr.length > 0 && (
+          <div className="mb-5 rounded-[1.7rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-black">
+              <Users size={18} className="text-pink-300" />
+              Lineup
+            </h2>
+
+            <div className="flex flex-wrap gap-2">
+              {lineupArr.map((dj, index) => (
+                <span
+                  key={`${dj}-${index}`}
+                  className="rounded-full border border-white/10 bg-white/[0.07] px-4 py-2 text-xs font-black text-white/75"
+                >
+                  {dj}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mb-5 rounded-[1.7rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-xl">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-black">
+            <MapPin size={18} className="text-blue-300" />
+            Location Check
+          </h2>
+
+          <div className="relative mb-4 flex h-44 items-center justify-center overflow-hidden rounded-[1.3rem] bg-white/[0.05]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(147,51,234,0.22),transparent_45%)]" />
+            <div className="relative z-10 text-center">
+              <MapPin size={38} className="mx-auto mb-2 text-white/30" />
+              <p className="text-sm font-black text-white/60">
+                {event?.location ?? "Location"}
+              </p>
+            </div>
+          </div>
+
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tap flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-4 text-sm font-black text-black"
+          >
+            <Navigation size={18} />
+            In Maps öffnen
+          </a>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <a
+            href={event?.ticketUrl ?? "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(clickEvent) => {
+              if (!event?.ticketUrl) {
+                clickEvent.preventDefault();
+                alert("Ticket-Link kommt bald.");
+              }
+            }}
+            className="tap flex items-center justify-center gap-2 rounded-[1.4rem] bg-white px-4 py-4 text-sm font-black text-black"
+          >
+            <Ticket size={18} />
+            Tickets
+          </a>
 
           <button
-            onClick={handleCreatePlan}
-            className="mb-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 px-5 py-4 text-base font-black shadow-[0_0_35px_rgba(168,85,247,0.35)] active:scale-[0.98]"
+            onClick={handleLike}
+            className={`tap flex items-center justify-center gap-2 rounded-[1.4rem] border border-white/10 px-4 py-4 text-sm font-black ${
+              isLiked
+                ? "bg-pink-500 text-white"
+                : "bg-white/[0.06] text-white backdrop-blur-xl"
+            }`}
           >
-            <Sparkles size={20} />
-            Abend automatisch planen
+            <Heart size={18} className={isLiked ? "fill-white" : ""} />
+            {isLiked ? "Geliked" : "Liken"}
           </button>
 
-          <div className="glass rounded-2xl p-4 mb-4">
-            <HeatScore
-              score={event.heatScore ?? 0}
-              size="lg"
-            />
-          </div>
+          <button
+            onClick={() => router.push("/food")}
+            className="tap flex items-center justify-center gap-2 rounded-[1.4rem] border border-white/10 bg-white/[0.06] px-4 py-4 text-sm font-black text-white backdrop-blur-xl"
+          >
+            <UtensilsCrossed size={18} />
+            Food
+          </button>
 
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="glass rounded-xl p-3">
-              <div className="flex items-center gap-2 text-purple-400 mb-1">
-                <Calendar size={14} />
-                <span className="text-xs font-semibold">
-                  Datum
-                </span>
-              </div>
+          <button
+            onClick={() => router.push("/taxi")}
+            className="tap flex items-center justify-center gap-2 rounded-[1.4rem] border border-white/10 bg-white/[0.06] px-4 py-4 text-sm font-black text-white backdrop-blur-xl"
+          >
+            <Car size={18} />
+            Taxi
+          </button>
+        </div>
 
-              <p className="text-sm text-white/80">
-                {dateStr}
-              </p>
-            </div>
+        <button
+          onClick={() => router.push("/events")}
+          className="tap mt-5 flex w-full items-center justify-between rounded-[1.4rem] border border-white/10 bg-white/[0.06] px-5 py-4 text-sm font-black text-white/75 backdrop-blur-xl"
+        >
+          Mehr Events entdecken
+          <ChevronRight size={18} />
+        </button>
+      </section>
 
-            <div className="glass rounded-xl p-3">
-              <div className="flex items-center gap-2 text-blue-400 mb-1">
-                <Clock size={14} />
-                <span className="text-xs font-semibold">
-                  Uhrzeit
-                </span>
-              </div>
-
-              <p className="text-sm text-white/80">
-                {event.startTime ?? ''} –{' '}
-                {event.endTime ?? ''}
-              </p>
-            </div>
-
-            <div className="glass rounded-xl p-3 col-span-2">
-              <div className="flex items-center gap-2 text-pink-400 mb-1">
-                <MapPin size={14} />
-                <span className="text-xs font-semibold">
-                  Location
-                </span>
-              </div>
-
-              <p className="text-sm text-white/80">
-                {event.location ?? ''},{' '}
-                {displayCity(event.city ?? '')}
-              </p>
-            </div>
-          </div>
-
-          <div className="glass rounded-2xl p-4 mb-4">
-            <h3 className="text-sm font-semibold text-white/70 mb-2 flex items-center gap-2">
-              <Music
-                size={14}
-                className="text-purple-400"
-              />
-              Über das Event
-            </h3>
-
-            <p className="text-sm text-white/60 leading-relaxed">
-              {event.description ?? ''}
-            </p>
-          </div>
-
-          {lineupArr.length > 0 && (
-            <div className="glass rounded-2xl p-4 mb-4">
-              <h3 className="text-sm font-semibold text-white/70 mb-3 flex items-center gap-2">
-                <Users
-                  size={14}
-                  className="text-pink-400"
-                />
-                Lineup
-              </h3>
-
-              <div className="flex flex-wrap gap-2">
-                {lineupArr.map(
-                  (dj: string, i: number) => (
-                    <span
-                      key={`${dj}-${i}`}
-                      className="px-3 py-1.5 rounded-full glass text-xs font-medium text-white/80"
-                    >
-                      {dj}
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="glass rounded-2xl p-4 mb-5">
-            <h3 className="text-sm font-semibold text-white/70 mb-3 flex items-center gap-2">
-              <MapPin
-                size={14}
-                className="text-blue-400"
-              />
-              Karte
-            </h3>
-
-            <div className="relative h-40 rounded-xl bg-white/5 flex items-center justify-center mb-3 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-blue-900/20" />
-
-              <div className="text-center z-10">
-                <MapPin
-                  size={32}
-                  className="text-white/20 mx-auto mb-2"
-                />
-
-                <p className="text-xs text-white/30">
-                  {event.location ?? ''}
-                </p>
-              </div>
-            </div>
-
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full py-2.5 rounded-xl bg-white/5 text-center text-sm text-white/70 hover:bg-white/10 transition-colors"
-            >
-              In Google Maps öffnen
-            </a>
-          </div>
-
-          <BottomNav />
-        </motion.div>
-      </div>
-    </div>
+      <BottomNav />
+    </main>
   );
 }
