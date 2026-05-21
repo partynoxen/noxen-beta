@@ -1,117 +1,153 @@
-'use client';
+"use client";
 
-import { Flame } from 'lucide-react';
+import { motion } from "framer-motion";
+import {
+  Flame,
+  MapPin,
+  Sparkles,
+  Users,
+  ArrowRight,
+} from "lucide-react";
 
-import BottomNav from '../components/bottom-nav';
-import LiveActivity from '../components/live-activity';
-import LiveMap from '../components/live-map';
-import AmbientBackground from '../components/ambient-background';
-import LiveIsland from '../components/live-island';
-import FloatingStatus from '../components/floating-status';
-import LiveCrowd from '../components/live-crowd';
-import TrendingEvents from '../components/trending-events';
-import NightFeed from '../components/night-feed';
+const trendingEvents = [
+  {
+    title: "Techno Warehouse",
+    city: "Köln",
+    crowd: "2.4K live",
+    heat: "98%",
+  },
+  {
+    title: "Rooftop Session",
+    city: "Düren",
+    crowd: "740 live",
+    heat: "87%",
+  },
+  {
+    title: "Neon Dreams",
+    city: "Saarbrücken",
+    crowd: "1.1K live",
+    heat: "91%",
+  },
+];
 
 export default function HomeClient() {
   return (
-    <main className="min-h-screen overflow-hidden bg-black pb-40 text-white">
+    <div className="relative min-h-screen overflow-hidden px-5 pb-32 pt-10">
+      {/* Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10"
+      >
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-4 py-2 text-xs font-semibold text-fuchsia-300 backdrop-blur-xl">
+          <Sparkles size={14} />
+          LIVE NIGHTLIFE EXPERIENCE
+        </div>
 
-      <AmbientBackground />
-      <FloatingStatus />
+        <h1 className="max-w-[320px] text-5xl font-black leading-none tracking-tight">
+          Discover the
+          <span className="bg-gradient-to-r from-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+            {" "}
+            Night.
+          </span>
+        </h1>
 
-      <div className="relative z-10 px-5 pt-10">
+        <p className="mt-5 max-w-[330px] text-sm leading-relaxed text-zinc-400">
+          Finde live heraus, wo heute wirklich etwas geht.
+          Events, Heat Scores, Crowd Vibes und spontane Nächte.
+        </p>
+      </motion.div>
 
-        <LiveIsland />
+      {/* Live Status */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mt-8 flex items-center justify-between rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-2xl"
+      >
+        <div>
+          <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">
+            LIVE IN
+          </p>
 
-        {/* HERO */}
-        <div className="relative mb-10 overflow-hidden rounded-[42px] border border-white/10 bg-white/[0.03] shadow-[0_0_80px_rgba(255,255,255,0.03)] backdrop-blur-3xl">
-
-          <div className="absolute inset-0">
-
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1571266028243-d220c9f5f7e8?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center opacity-40 scale-105" />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
-
+          <div className="mt-2 flex items-center gap-2 text-2xl font-bold">
+            <MapPin className="text-fuchsia-400" size={22} />
+            Köln
           </div>
+        </div>
 
-          <div className="relative z-20 flex min-h-[520px] flex-col justify-between p-8">
+        <motion.div
+          animate={{
+            scale: [1, 1.12, 1],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 2,
+          }}
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-cyan-500 shadow-2xl shadow-fuchsia-500/30"
+        >
+          <Users />
+        </motion.div>
+      </motion.div>
 
-            <div className="flex items-start justify-between">
+      {/* Trending */}
+      <div className="relative z-10 mt-10">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Trending Tonight</h2>
 
-              <div className="flex gap-3">
+          <button className="text-sm text-fuchsia-300">
+            Alle ansehen
+          </button>
+        </div>
 
-                <div className="flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/10 px-4 py-2 text-sm text-green-300 backdrop-blur-xl">
+        <div className="space-y-4">
+          {trendingEvents.map((event, index) => (
+            <motion.div
+              key={event.title}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: index * 0.15,
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 p-5 backdrop-blur-2xl"
+            >
+              {/* Glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/10 to-cyan-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                  <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
+              <div className="relative z-10 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">
+                    {event.title}
+                  </h3>
 
-                  LIVE NOW
+                  <div className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
+                    <MapPin size={14} />
+                    {event.city}
+                  </div>
 
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs">
+                      <Users size={12} />
+                      {event.crowd}
+                    </div>
+
+                    <div className="flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-3 py-1 text-xs text-fuchsia-300">
+                      <Flame size={12} />
+                      Heat {event.heat}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-sm text-white backdrop-blur-xl">
-
-                  Köln • 24 Events
-
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-500">
+                  <ArrowRight />
                 </div>
-
               </div>
-
-              <div className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-5 py-3 text-red-300 backdrop-blur-xl">
-
-                <Flame className="h-4 w-4" />
-
-                HOT NIGHT
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <p className="mb-5 text-xs uppercase tracking-[0.35em] text-pink-400">
-                NOXEN NIGHTLIFE
-              </p>
-
-              <h1 className="text-7xl font-black leading-[0.9]">
-                Tonight
-                <br />
-                Hits Different.
-              </h1>
-
-              <p className="mt-8 max-w-2xl text-2xl leading-relaxed text-white/60">
-                Entdecke live die besten Events,
-                Clubs, Foodspots und Nächte
-                deiner Stadt.
-              </p>
-
-            </div>
-
-          </div>
-
+            </motion.div>
+          ))}
         </div>
-
-        <LiveActivity />
-
-        <div className="mb-10 mt-10">
-          <LiveMap />
-        </div>
-
-        <div className="mb-10">
-          <LiveCrowd />
-        </div>
-
-        <div className="mb-10">
-          <TrendingEvents />
-        </div>
-
-        <div className="mb-10">
-          <NightFeed />
-        </div>
-
       </div>
-
-      <BottomNav />
-
-    </main>
+    </div>
   );
 }
