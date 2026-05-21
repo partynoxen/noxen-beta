@@ -4,17 +4,11 @@ import { motion } from "framer-motion";
 
 export default function CinematicBackground() {
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden">
-      {/* BASE */}
-      <div className="absolute inset-0 bg-black" />
-
+    <div className="fixed inset-0 overflow-hidden bg-black">
+      
       {/* GRID */}
       <div
-        className="
-          absolute
-          inset-0
-          opacity-[0.08]
-        "
+        className="absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
@@ -24,113 +18,68 @@ export default function CinematicBackground() {
         }}
       />
 
-      {/* PURPLE AMBIENT */}
+      {/* LEFT GLOW */}
       <motion.div
         animate={{
-          x: [0, 100, -50, 0],
-          y: [0, -80, 50, 0],
-          scale: [1, 1.3, 1],
+          scale: [1, 1.2, 1],
+          opacity: [0.4, 0.7, 0.4],
         }}
         transition={{
-          duration: 18,
+          duration: 10,
           repeat: Infinity,
-          ease: "easeInOut",
         }}
-        className="
-          absolute
-          -left-40
-          top-0
-          h-[600px]
-          w-[600px]
-          rounded-full
-          bg-fuchsia-500/20
-          blur-[140px]
-        "
+        className="absolute left-[-10%] top-[10%] h-[600px] w-[600px] rounded-full bg-fuchsia-700 blur-[180px]"
       />
 
-      {/* BLUE AMBIENT */}
+      {/* RIGHT BLUE GLOW */}
       <motion.div
         animate={{
-          x: [0, -120, 60, 0],
-          y: [0, 80, -40, 0],
-          scale: [1, 1.4, 1],
+          scale: [1, 1.15, 1],
+          opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
-          duration: 22,
+          duration: 12,
           repeat: Infinity,
-          ease: "easeInOut",
         }}
-        className="
-          absolute
-          bottom-0
-          right-0
-          h-[700px]
-          w-[700px]
-          rounded-full
-          bg-cyan-500/20
-          blur-[160px]
-        "
+        className="absolute right-[-10%] top-[20%] h-[700px] w-[700px] rounded-full bg-cyan-600 blur-[220px]"
       />
 
       {/* CENTER GLOW */}
       <motion.div
         animate={{
-          opacity: [0.2, 0.5, 0.2],
-          scale: [1, 1.2, 1],
+          y: [-20, 20, -20],
+          opacity: [0.15, 0.3, 0.15],
         }}
         transition={{
           duration: 8,
           repeat: Infinity,
         }}
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          h-[500px]
-          w-[500px]
-          -translate-x-1/2
-          -translate-y-1/2
-          rounded-full
-          bg-violet-500/10
-          blur-[120px]
-        "
+        className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600 blur-[180px]"
       />
 
       {/* PARTICLES */}
-      {[...Array(25)].map((_, i) => (
+      {[...Array(40)].map((_, i) => (
         <motion.div
           key={i}
           animate={{
-            y: [0, -120],
-            opacity: [0, 1, 0],
+            y: [-20, 20, -20],
+            opacity: [0.2, 0.8, 0.2],
           }}
           transition={{
-            duration: 4 + i % 4,
+            duration: 4 + i % 5,
             repeat: Infinity,
-            delay: i * 0.3,
           }}
-          className="
-            absolute
-            h-1
-            w-1
-            rounded-full
-            bg-white/40
-          "
+          className="absolute h-[2px] w-[2px] rounded-full bg-white"
           style={{
             left: `${Math.random() * 100}%`,
-            bottom: "-20px",
+            top: `${Math.random() * 100}%`,
           }}
         />
       ))}
 
       {/* NOISE */}
       <div
-        className="
-          absolute
-          inset-0
-          opacity-[0.03]
-          mix-blend-soft-light
-        "
+        className="absolute inset-0 opacity-[0.03] mix-blend-screen"
         style={{
           backgroundImage:
             "url('https://grainy-gradients.vercel.app/noise.svg')",
