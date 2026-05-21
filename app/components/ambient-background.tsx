@@ -1,69 +1,74 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 export default function AmbientBackground() {
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
+      {/* Hintergrund */}
+      <div className="absolute inset-0 bg-[#050510]" />
 
-      {/* ORB 1 */}
+      {/* Glow oben */}
       <motion.div
         animate={{
-          x: [0, 80, 0],
-          y: [0, -60, 0],
-          scale: [1, 1.1, 1],
+          x: [0, 80, -40, 0],
+          y: [0, 40, -20, 0],
         }}
         transition={{
           duration: 12,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
-        className="absolute left-[-140px] top-[-140px] h-[420px] w-[420px] rounded-full bg-pink-500/20 blur-[140px]"
+        className="absolute -top-40 left-[-120px] h-[420px] w-[420px] rounded-full bg-fuchsia-500/30 blur-3xl"
       />
 
-      {/* ORB 2 */}
+      {/* Glow rechts */}
       <motion.div
         animate={{
-          x: [0, -80, 0],
-          y: [0, 60, 0],
+          x: [0, -60, 30, 0],
+          y: [0, -40, 20, 0],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="absolute right-[-140px] top-[20%] h-[380px] w-[380px] rounded-full bg-cyan-500/20 blur-3xl"
+      />
+
+      {/* Glow unten */}
+      <motion.div
+        animate={{
           scale: [1, 1.15, 1],
         }}
         transition={{
-          duration: 16,
+          duration: 8,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
-        className="absolute bottom-[-180px] right-[-100px] h-[500px] w-[500px] rounded-full bg-blue-500/20 blur-[160px]"
+        className="absolute bottom-[-200px] left-1/2 h-[450px] w-[450px] -translate-x-1/2 rounded-full bg-violet-600/20 blur-3xl"
       />
 
-      {/* ORB 3 */}
-      <motion.div
-        animate={{
-          y: [0, -80, 0],
-          opacity: [0.2, 0.35, 0.2],
+      {/* Grid */}
+      <div
+        className="absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)
+          `,
+          backgroundSize: "40px 40px",
         }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500/20 blur-[120px]"
       />
 
-      {/* GRID */}
-      <div className="absolute inset-0 opacity-[0.04]">
-        <div
-          className="h-full w-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }}
-        />
-      </div>
-
+      {/* Noise Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.05] mix-blend-soft-light"
+        style={{
+          backgroundImage:
+            "url('https://grainy-gradients.vercel.app/noise.svg')",
+        }}
+      />
     </div>
   );
 }
