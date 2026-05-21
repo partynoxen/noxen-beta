@@ -2,12 +2,14 @@
 
 import CinematicBackground from "../components/cinematic-background";
 import LiveEnergyOrbs from "../components/live-energy-orbs";
+import MouseGlow from "../components/mouse-glow";
 
 export default function HomeClient() {
   return (
     <>
       <CinematicBackground />
       <LiveEnergyOrbs />
+      <MouseGlow />
 
       <div className="relative z-10">
         {/* TOP FEED */}
