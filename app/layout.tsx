@@ -1,5 +1,3 @@
-import "./globals.css";
-
 export default function RootLayout({
   children,
 }: {
@@ -7,7 +5,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body
+        style={{
+          background: "red",
+          color: "white",
+          fontSize: "120px",
+          fontWeight: "900",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+        }}
+      >
+        LAYOUT WORKS 🔥
+      </body>
     </html>
   );
 }
